@@ -1,8 +1,7 @@
 name: Fetch GeoRelays Data
 
 on:
-  schedule:
-    - cron: '0 6 * * 0'
+  # Manual only: do not mutate the fork relay directory on a schedule.
   workflow_dispatch:
 
 permissions:
