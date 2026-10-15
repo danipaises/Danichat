@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="account_title">Seu DaniChat</string>
+    <string name="account_optional">A conta online é opcional. Continue conversando pela rede BitChat sem conta, chip ou número de telefone.</string>
+    <string name="account_unconfigured">A conta online ainda não foi ativada nesta versão do aplicativo. Use a aba BitChat para conversar pela rede existente.</string>
+    <string name="account_connected">Conta neste aparelho</string>
+    <string name="account_name">Nome do perfil online</string>
+    <string name="account_bio">Sobre você</string>
+    <string name="account_count">%1$d / %2$d</string>
+    <string name="account_save">Salvar perfil online</string>
+    <string name="account_reload">Atualizar conta</string>
+    <string name="account_sign_out">Sair da conta online</string>
+    <string name="account_email">E-mail</string>
+    <string name="account_password">Senha</string>
+    <string name="account_password_hint">Para criar uma conta, use pelo menos 12 caracteres.</string>
+    <string name="account_sign_in">Entrar</string>
+    <string name="account_sign_up">Criar conta com e-mail</string>
+    <string name="account_profile_unavailable">O perfil ainda não foi carregado. Atualize a conta para tentar novamente.</string>
+    <string name="account_privacy">O servidor da conta recebe seu e-mail e o perfil que você salvar. Nesta versão, as conversas continuam na rede BitChat: a conta online não envia mensagens, sincroniza contatos ou guarda suas chaves privadas. Entrar em outro aparelho ainda não recupera sua identidade nem seu histórico BitChat.</string>
+    <string name="account_confirm_email">Se o cadastro for permitido, você receberá um e-mail de confirmação. Confirme pelo navegador e volte aqui para entrar com sua senha.</string>
+    <string name="account_saved">Perfil salvo no servidor.</string>
+    <string name="account_signed_out">Você saiu da conta online. Sua identidade e suas conversas BitChat continuam neste aparelho.</string>
+    <string name="account_signed_out_locally">Sessão removida deste aparelho. Não foi possível confirmar a revogação no servidor.</string>
+    <string name="account_error_network">Não foi possível conectar. Verifique a internet e tente novamente.</string>
+    <string name="account_error_credentials">Não foi possível entrar. Confira o e-mail e a senha.</string>
+    <string name="account_error_confirmation">Confirme seu e-mail antes de entrar.</string>
+    <string name="account_error_rate_limit">Muitas tentativas. Aguarde antes de tentar novamente.</string>
+    <string name="account_error_input">Confira os dados. Use um e-mail válido e respeite os limites dos campos.</string>
+    <string name="account_error_session">Sua sessão expirou ou não tem acesso. Entre novamente.</string>
+    <string name="account_error_setup">O servidor ainda não está pronto para a conta DaniChat.</string>
+    <string name="account_error_service">O serviço de conta está indisponível. Tente novamente mais tarde.</string>
+    <string name="account_error_storage">Não foi possível acessar o armazenamento protegido da conta neste aparelho.</string>
+</resources>

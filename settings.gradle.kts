@@ -18,4 +18,5 @@ include(":app")
 include(":wear")
 include(":feature:welcome")
 include(":data:account")
+include(":feature:account")
 // Using published Arti AAR; local module not included
