@@ -1,0 +1,108 @@
+name: Publish verified prebuilt debug APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing development tag matching the build manifest
+        required: true
+        default: v0.1.0-dev
+        type: string
+      assets_commit:
+        description: Immutable commit containing only the reviewed release files
+        required: true
+        type: string
+      apk_sha256:
+        description: Expected SHA-256 of the already compiled debug APK
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  upload:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Validate inputs
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          ASSETS_COMMIT: ${{ inputs.assets_commit }}
+          EXPECTED_APK_SHA256: ${{ inputs.apk_sha256 }}
+        run: |
+          python3 - <<'PY'
+          import os, re
+          assert re.fullmatch(r'v[0-9]+\.[0-9]+\.[0-9]+-dev', os.environ['RELEASE_TAG'])
+          assert re.fullmatch(r'[0-9a-f]{40}', os.environ['ASSETS_COMMIT'])
+          assert re.fullmatch(r'[0-9a-f]{64}', os.environ['EXPECTED_APK_SHA256'])
+          PY
+      - name: Fetch reviewed release files
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.assets_commit }}
+          path: assets
+          persist-credentials: false
+      - name: Verify and upload to the existing draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          EXPECTED_APK_SHA256: ${{ inputs.apk_sha256 }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, subprocess
+
+          def gh(*args):
+              return subprocess.check_output(['gh', *args], text=True)
+
+          repo = os.environ['GITHUB_REPOSITORY']
+          tag = os.environ['RELEASE_TAG']
+          version = tag[1:].removesuffix('-dev')
+          root = pathlib.Path('assets')
+          apk = f'DaniChat-{version}-debug-universal.apk'
+          source = f'DaniChat-{version}-codigo-fonte.zip'
+          manifest = 'DaniChat-BUILD-INFO.json'
+          sums = 'DaniChat-SHA256SUMS.txt'
+          expected = {apk, source, manifest}
+          assert {p.name for p in root.iterdir() if p.name != '.git'} == expected | {sums}
+          digests = {}
+          for row in (root / sums).read_text().splitlines():
+              sha, name = row.split('  ', 1)
+              assert name in expected and name not in digests
+              with (root / name).open('rb') as stream:
+                  assert hashlib.file_digest(stream, 'sha256').hexdigest() == sha
+              digests[name] = sha
+          assert set(digests) == expected
+          assert digests[apk] == os.environ['EXPECTED_APK_SHA256']
+          digests[sums] = hashlib.sha256((root / sums).read_bytes()).hexdigest()
+          info = json.loads((root / manifest).read_text())
+          assert info['artifact'] == apk
+          assert info['build_type'] == 'debug'
+          assert info['application_id'] == 'com.danichat.android'
+          assert 'v' + info['version'] == tag
+          tag_commit = json.loads(gh('api', f'repos/{repo}/commits/{tag}'))['sha']
+          assert info['source_commit'] == tag_commit
+
+          def release():
+              matches = [r for r in json.loads(gh('api', f'repos/{repo}/releases')) if r['tag_name'] == tag]
+              assert len(matches) == 1
+              assert matches[0]['draft'] and matches[0]['prerelease']
+              return matches[0]
+
+          for name in sorted(digests):
+              existing = [a for a in release()['assets'] if a['name'] == name]
+              if existing:
+                  assert len(existing) == 1
+                  assert existing[0]['digest'] == 'sha256:' + digests[name]
+              else:
+                  subprocess.run(['gh', 'release', 'upload', tag, str(root / name), '--repo', repo], check=True)
+          uploaded = {a['name']: a for a in release()['assets']}
+          assert set(uploaded) == set(digests)
+          for name, sha in digests.items():
+              assert uploaded[name]['state'] == 'uploaded'
+              assert uploaded[name]['digest'] == 'sha256:' + sha
+          print('All four release files uploaded and SHA-256 verified; release remains a draft.')
+          PY
