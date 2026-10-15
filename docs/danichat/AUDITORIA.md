@@ -42,6 +42,12 @@ NIP-44 (M13). Outros achados daquele relatório devem ser reavaliados contra o
 commit atual; a presença de um relatório não prova correção nem vulnerabilidade
 atual de todos os itens.
 
+Comparação com o [NIP-44 oficial](https://github.com/nostr-protocol/nips/blob/master/44.md):
+a versão 2 define nonce de 32 bytes, derivação de 76 bytes, padding, ChaCha20,
+HMAC-SHA256 e base64 de `version || nonce || ciphertext || mac`. O codec herdado
+usa outro nonce, AEAD XChaCha e prefixo textual. Portanto, testes internos de
+round-trip daquele codec não comprovam conformidade ou interoperabilidade NIP-44.
+
 ## Decisões da Fase 1
 
 1. Fazer fork integral com identidade de instalação própria (`com.danichat.android`)

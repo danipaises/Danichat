@@ -1,105 +1,49 @@
-<img width="256" height="256" alt="icon_128x128@2x" src="https://github.com/user-attachments/assets/90133f83-b4f6-41c6-aab9-25d0859d2a47" />
+# DaniChat Android
 
-## bitchat for Android
+Mensageiro Android independente da Meta, derivado do BitChat Android. Kotlin,
+Jetpack Compose e Material 3, com a pilha real de comunicação da base preservada.
 
-A decentralized peer-to-peer messaging app with dual transport architecture: local Bluetooth mesh networks for offline communication and internet-based Nostr protocol for global reach. No accounts, no phone numbers, no central servers.
+**Marco atual: Fase 1 e primeira compilação do fork. Produto em desenvolvimento.**
+Não é uma implementação completa de todas as oito fases, nem uma versão com
+segurança validada. Os resultados de build e testes estão em
+[Verificação](docs/danichat/VERIFICACAO.md).
 
-This is the Android implementation of bitchat, fully protocol-compatible with the [iOS version](https://github.com/permissionlesstech/bitchat) for cross-platform mesh communication.
+- Identidade de instalação DaniChat: `com.danichat.android`, versão `0.1.0-dev`.
+- Boas-vindas próprias em módulo Gradle, tema e marca originais; idioma inicial pt-BR.
+- Descoberta BLE, encaminhamento, Noise, Wi-Fi Aware opcional e integração Nostr
+  herdados, sem substituir comunicação por simulações.
+- Atualizações do BitChat desabilitadas para não oferecer APKs de outro produto.
+- Telas e tradução herdadas ainda precisam da revisão completa da Fase 2.
 
-[bitchat.free](http://bitchat.free)
+A outbox atual não é durável, o codec Nostr legado diverge do NIP-44 padrão,
+e não há telefone verificado, recuperação completa, Room ou paridade de mídia
+online/grupos privados do projeto final. Wi-Fi Direct compartilha APK; não é
+um transporte de chat. Testes em aparelhos físicos continuam pendentes.
 
-[GitHub Releases](https://github.com/permissionlesstech/bitchat-android/releases)
+## Documentação
 
-[<img alt="Get it on Google Play" height="60" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"/>](https://play.google.com/store/apps/details?id=com.bitchat.droid)
+- [Auditoria do código e limitações](docs/danichat/AUDITORIA.md)
+- [Arquitetura e decisões](docs/danichat/ARQUITETURA.md)
+- [Fases e critérios de aceite](docs/danichat/FASES.md)
+- [Compilação, instalação e Actions](docs/danichat/COMPILACAO.md)
+- [Resultados da verificação](docs/danichat/VERIFICACAO.md)
 
-## See it in action
-
-<table>
-  <tr>
-    <th>Offline mesh conversation</th>
-    <th>Geohash globe picker</th>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/readme-mesh-chat.png" alt="Active four-peer Bitchat mesh conversation with an image, voice messages, and text messages" width="360"/></td>
-    <td><img src="docs/screenshots/readme-geohash-globe.png" alt="Bitchat geohash location picker showing the whole Earth and geohash grid" width="360"/></td>
-  </tr>
-</table>
-
-## License
-
-This project is released into the public domain. See the [LICENSE](LICENSE.md) file for details.
-
-## Features
-
-- **Dual Transport Architecture**: Bluetooth LE mesh for offline messaging, Nostr relays for internet-based messaging
-- **Location-Based Channels**: Geographic chat rooms using geohash coordinates over Nostr relays
-- **Intelligent Message Routing**: Automatically chooses the best transport, with queuing and retry when a peer is unreachable
-- **End-to-End Encryption**: [Noise Protocol](https://noiseprotocol.org) (XX pattern, X25519 + ChaCha20-Poly1305) for private messages over the mesh
-- **Decentralized Mesh Network**: Automatic peer discovery and multi-hop relay over Bluetooth LE (max 7 hops)
-- **Wi-Fi Aware Transport**: Higher-bandwidth local mesh on supported devices
-- **Channel Chats**: Topic-based group messaging with optional password protection (Argon2id + AES-256-GCM)
-- **IRC-Style Commands**: Familiar `/join`, `/msg`, `/who` style interface
-- **Tor Support**: Built-in Tor (Arti) for private internet connectivity
-- **Emergency Wipe**: Triple-tap to instantly clear all data
-- **Cross-Platform**: Binary protocol compatible with bitchat on iOS and macOS
-
-## Technical Architecture
-
-### Bluetooth Mesh Network (Offline)
-
-- Direct peer-to-peer within Bluetooth range, multi-hop relay through nearby devices
-- Noise Protocol sessions with forward secrecy; peer identities derived from static keys
-- Compact binary packet format with fragmentation, TTL routing, and deduplication
-- Adaptive duty cycling and connection limits for battery efficiency
-- Foreground service keeps the mesh alive within Android background execution limits
-
-### Nostr Protocol (Internet)
-
-- Global reach via public relays, geohash-based location channels
-- Private messages fall back to Nostr for mutual favorites when the mesh is unavailable
-- Ephemeral keys per geohash area
-
-### Android Stack
-
-- Kotlin, Jetpack Compose (Material 3), MVVM
-- Coroutines and Flow for all networking and state
-- Core components: `MeshForegroundService` (persistent connectivity), `BluetoothMeshService` / `WifiAwareMeshService` (transports), `UnifiedMeshService` (transport selection), `NoiseSessionManager` (encryption sessions), `MessageRouter` (mesh/Nostr routing with outbox retry)
-
-## Building
-
-Requires Android Studio and the Android SDK (API 26+).
-
-```bash
-git clone https://github.com/permissionlesstech/bitchat-android.git
-cd bitchat-android
-./gradlew assembleDebug
+```sh
+# JDK 21 completo, SDK 37 e Build Tools 37.0.0
+./gradlew :app:assembleDebug
+adb install -r app/build/outputs/apk/debug/app-universal-debug.apk
 ```
 
-Install on a connected device:
+APK debug serve para desenvolvimento e inclui hooks de laboratório por ADB.
+Relays podem observar metadados; canais públicos expõem conteúdo. Leia as
+limitações antes de usar dados sensíveis. Não foram usados serviços da Meta,
+protocolos privados ou engenharia reversa do WhatsApp.
 
-```bash
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-```
+## Origem e licença
 
-The app requests Bluetooth, location (required for BLE scanning), and notification permissions at runtime.
-
-Release APKs and the Android App Bundle can be rebuilt byte-for-byte in the
-pinned Linux container. Maintainers should follow the
-[Android release guide](docs/maintainer-release-guide.md). See
-[Reproducible builds](docs/reproducible-builds.md) for the build trust model
-and public GitHub/Google Play verification procedures.
-
-## Testing
-
-```bash
-# Unit tests
-./gradlew test
-
-# Lint
-./gradlew lint
-
-# Instrumented tests (requires a device or emulator)
-./gradlew connectedAndroidTest
-```
-
-Note that BLE mesh behavior is difficult to emulate; protocol and session logic is covered by unit tests, while radio-level behavior needs real devices.
+Base: [BitChat Android](https://github.com/permissionlesstech/bitchat-android),
+commit `6ade68256cf32ca327047ba7f618ac6514f205ff`.
+Fork modificado a partir de 2026-10-15, sob [GNU GPLv3](LICENSE.md), sem garantia.
+Veja [NOTICE](NOTICE.md) e o [README upstream preservado](docs/upstream/README.md).
+Ao distribuir APK, disponibilize também o código-fonte correspondente e os
+avisos de licença. DaniChat não é uma versão oficial do BitChat.
