@@ -74,3 +74,10 @@ tools/arti-build/target/
 
 # JVM heap dumps (a Gradle daemon OOM drops these in the repo root)
 *.hprof
+
+# Supabase local state and private configuration
+.env
+.env.*
+!.env.example
+supabase/.temp/
+supabase/.branches/

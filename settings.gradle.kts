@@ -17,4 +17,5 @@ rootProject.name = "danichat-android"
 include(":app")
 include(":wear")
 include(":feature:welcome")
+include(":data:account")
 // Using published Arti AAR; local module not included
