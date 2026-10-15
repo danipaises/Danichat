@@ -3,17 +3,21 @@
 Mensageiro Android independente da Meta, derivado do BitChat Android. Kotlin,
 Jetpack Compose e Material 3, com a pilha real de comunicação da base preservada.
 
-**Marco atual: Fase 1 e primeira compilação do fork. Produto em desenvolvimento.**
+**Marco atual: base BitChat preservada e início da conta online Supabase. Produto em desenvolvimento.**
 Não é uma implementação completa de todas as oito fases, nem uma versão com
 segurança validada. Os resultados de build e testes estão em
 [Verificação](docs/danichat/VERIFICACAO.md).
 
-- Identidade de instalação DaniChat: `com.danichat.android`, versão `0.1.0-dev`.
+- Identidade de instalação DaniChat: `com.danichat.android`, versão `0.2.0-dev`.
 - Boas-vindas próprias em módulo Gradle, tema e marca originais; idioma inicial pt-BR.
 - Descoberta BLE, encaminhamento, Noise, Wi-Fi Aware opcional e integração Nostr
   herdados, sem substituir comunicação por simulações.
 - Atualizações do BitChat desabilitadas para não oferecer APKs de outro produto.
 - Telas e tradução herdadas ainda precisam da revisão completa da Fase 2.
+- Aba de conta online com cadastro/login e perfil Supabase, ativada quando o
+  projeto é configurado. Sessões protegidas por Keystore; perfis com RLS.
+- A conta online é opcional. A identidade e as conversas BitChat não são
+  substituídas pelo login e ainda não são sincronizadas pelo Supabase.
 
 A outbox atual não é durável, o codec Nostr legado diverge do NIP-44 padrão,
 e não há telefone verificado, recuperação completa, Room ou paridade de mídia
@@ -24,6 +28,7 @@ um transporte de chat. Testes em aparelhos físicos continuam pendentes.
 
 - [Auditoria do código e limitações](docs/danichat/AUDITORIA.md)
 - [Arquitetura e decisões](docs/danichat/ARQUITETURA.md)
+- [Conta Supabase, configuração e compatibilidade](docs/danichat/SUPABASE.md)
 - [Fases e critérios de aceite](docs/danichat/FASES.md)
 - [Compilação, instalação e Actions](docs/danichat/COMPILACAO.md)
 - [Resultados da verificação](docs/danichat/VERIFICACAO.md)

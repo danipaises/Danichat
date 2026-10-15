@@ -20,6 +20,8 @@ administrador; não desative TLS nem a verificação de dependências.
 tools/arti-build/verify-checksums.sh
 python3 -m unittest discover -s tools/release_gate -p 'test_*.py'
 ./gradlew :app:testDebugUnitTest :app:lintDebug :feature:welcome:lintDebug :app:assembleDebug --no-daemon --max-workers=2
+python3 tools/danichat/test_profile_rls.py
+./gradlew :data:account:testDebugUnitTest :feature:account:testDebugUnitTest :data:account:lintDebug :feature:account:lintDebug --no-daemon --max-workers=2
 ```
 
 APK universal: `app/build/outputs/apk/debug/app-universal-debug.apk`.
@@ -43,8 +45,12 @@ contém os hooks ADB de laboratório herdados; use apenas em aparelhos de teste.
   environment `release`, e falha se os segredos estiverem ausentes.
 - `fetch-georelays.yml`: atualização herdada dos relays somente manual.
 
-Os workflows não foram executados no GitHub nesta sessão e não publicam uma
-release automaticamente. Configure o environment `release` com revisores e
+A compilação CI do marco `0.1.0-dev` passou no GitHub; isso não comprova a
+validação de versões posteriores. Os workflows de build não publicam uma
+release automaticamente. O workflow manual `publish-prebuilt-debug.yml` envia
+arquivos previamente compilados/conferidos a uma pré-release existente como
+rascunho; confere hashes e o commit correspondente à tag, e mantém o rascunho
+até a publicação explícita. Configure o environment `release` com revisores e
 restrição de branch antes de habilitar assinatura. Declarar o environment no
 YAML não configura essas proteções no GitHub.
 

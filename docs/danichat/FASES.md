@@ -3,6 +3,11 @@
 O primeiro marco desta execução é Fase 1 + compilação debug do fork. As demais
 fases têm critérios explícitos; código herdado não comprova conclusão delas.
 
+O incremento `0.2.0-dev` adiciona conta/perfil Supabase opcional conforme
+[SUPABASE.md](SUPABASE.md). Isso inicia a camada online solicitada sem concluir
+a Fase 3: vínculo criptográfico, recuperação e histórico unificado permanecem
+pendentes. A compatibilidade de protocolo BitChat é uma restrição permanente.
+
 | Fase | Entrega | Verificação exigida |
 | --- | --- | --- |
 | 1 | Auditoria, origem/licença, arquitetura, identidade de instalação própria, primeira feature modular e compilação | Build debug real, contratos/JVM disponíveis, conferência do manifesto e assinatura debug |

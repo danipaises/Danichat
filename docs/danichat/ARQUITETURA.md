@@ -48,8 +48,23 @@ mensagens, passar pelo Mesh Lab físico.
 | `:feature:connectivity` | Estado real de conexões/permissões, proximidade e ajustes |
 | `:feature:privacy` | Consentimentos, bloqueio, verificação, exclusão e política de metadados |
 
-Não adicionar DI, backend gerenciado ou dependências de criptografia por
-conveniência. Primeiro reutilizar interfaces e bibliotecas já presentes.
+Não adicionar DI ou dependências de criptografia por conveniência.
+Reutilizar interfaces e bibliotecas já presentes. A integração Supabase foi
+solicitada explicitamente e começa pelo módulo de conta descrito abaixo.
+
+## Incremento de conta Supabase
+
+`:data:account` implementa Auth/PostgREST com OkHttp/Gson e sessão protegida pelo
+Keystore. `:feature:account` implementa a aba de conta com ViewModel/StateFlow.
+Ambos são independentes da pilha BitChat; `:app` injeta configuração pública e
+o provedor de rede que respeita Tor. O perfil online tem RLS por proprietário;
+não contém mensagens, telefones, contatos ou chaves privadas.
+
+O login online ainda não vincula nem recupera a identidade criptográfica da
+mesh. Essa fronteira é explícita na UI. O protocolo BitChat e seus transportes
+permanecem preservados para interoperabilidade. Instalação e contratos JVM
+devem ser complementados por testes DaniChat ↔ BitChat físicos.
+Configuração, limites e critérios estão em [SUPABASE.md](SUPABASE.md).
 
 ## Identidade, histórico e entrega
 

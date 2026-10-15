@@ -56,7 +56,8 @@ private data class ConversationLiveIdentityState(
 class ChatViewModel(
     application: Application,
     initialMeshService: BluetoothMeshService,
-    initialUnifiedMeshService: MeshService
+    initialUnifiedMeshService: MeshService,
+    private val onPanicClearAccount: suspend () -> Boolean = { true }
 ) : AndroidViewModel(application), BluetoothMeshDelegate {
 
     // Made var to support mesh service replacement after panic clear
@@ -1466,6 +1467,7 @@ class ChatViewModel(
         // Stop all message admission before wiping storage. The AppStateStore gate also rejects
         // any transport callback already in flight until the fresh identity is ready.
         clearAllMeshServiceData()
+        val onlineSessionCleared = onPanicClearAccount()
         val conversationsCleared =
             com.bitchat.android.services.AppStateStore
                 .panicClearPrivateConversations()
@@ -1518,10 +1520,10 @@ class ChatViewModel(
         state.setNickname(newNickname)
         dataManager.saveNickname(newNickname)
 
-        if (!conversationsCleared) {
+        if (!conversationsCleared || !onlineSessionCleared) {
             // Privacy wins over availability: keep private-message admission and transports
             // stopped if SQLite could not prove that the conversation history was erased.
-            Log.e(TAG, "🚨 PANIC MODE INCOMPLETE - conversation database wipe failed")
+            Log.e(TAG, "🚨 PANIC MODE INCOMPLETE - local storage wipe failed")
             return
         }
 

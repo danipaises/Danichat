@@ -14,6 +14,9 @@ permissions:
 jobs:
   unsigned:
     runs-on: ubuntu-24.04
+    env:
+      DANICHAT_SUPABASE_URL: ${{ vars.DANICHAT_SUPABASE_URL }}
+      DANICHAT_SUPABASE_PUBLISHABLE_KEY: ${{ vars.DANICHAT_SUPABASE_PUBLISHABLE_KEY }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -33,7 +36,8 @@ jobs:
           DANICHAT_RELEASE_CERT_SHA256: ${{ vars.DANICHAT_RELEASE_CERT_SHA256 }}
         run: |
           tools/arti-build/verify-checksums.sh
-          ./gradlew :app:testDebugUnitTest :app:lintDebug :feature:welcome:lintDebug :app:assembleRelease --no-daemon --max-workers=2
+          python3 tools/danichat/test_profile_rls.py
+          ./gradlew :data:account:testDebugUnitTest :feature:account:testDebugUnitTest :data:account:lintDebug :feature:account:lintDebug :app:testDebugUnitTest :app:lintDebug :feature:welcome:lintDebug :app:assembleRelease --no-daemon --max-workers=2
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: DaniChat-release-unsigned

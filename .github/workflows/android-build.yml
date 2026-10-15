@@ -16,6 +16,9 @@ concurrency:
 jobs:
   debug:
     runs-on: ubuntu-24.04
+    env:
+      DANICHAT_SUPABASE_URL: ${{ vars.DANICHAT_SUPABASE_URL }}
+      DANICHAT_SUPABASE_PUBLISHABLE_KEY: ${{ vars.DANICHAT_SUPABASE_PUBLISHABLE_KEY }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -34,20 +37,30 @@ jobs:
         run: tools/arti-build/verify-checksums.sh
       - name: Test host tooling
         run: python3 -m unittest discover -s tools/release_gate -p 'test_*.py'
+      - name: Test profile access control in disposable PostgreSQL
+        run: python3 tools/danichat/test_profile_rls.py
       - name: Unit tests, lint and debug APK
-        run: ./gradlew :app:testDebugUnitTest :app:lintDebug :feature:welcome:lintDebug :app:assembleDebug --no-daemon --max-workers=2
+        run: ./gradlew :data:account:testDebugUnitTest :feature:account:testDebugUnitTest :data:account:lintDebug :feature:account:lintDebug :app:testDebugUnitTest :app:lintDebug :feature:welcome:lintDebug :app:assembleDebug --no-daemon --max-workers=2
       - name: Upload debug APK
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: DaniChat-debug
           path: app/build/outputs/apk/debug/app-universal-debug.apk
           if-no-files-found: error
-      - name: Upload verification reports
+      - name: Summarize unit test results
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: DaniChat-verification
-          path: |
-            app/build/reports/tests/
-            app/build/reports/lint-results-*.html
-            feature/welcome/build/reports/lint-results-*.html
+        run: |
+          python3 - <<'PY'
+          import pathlib, xml.etree.ElementTree as ET
+          for module in ('app', 'data/account', 'feature/account'):
+              reports = list(pathlib.Path(module, 'build/test-results/testDebugUnitTest').glob('TEST-*.xml'))
+              if not reports:
+                  print(f'{module}: no completed test reports')
+                  continue
+              totals = {key: 0 for key in ('tests', 'failures', 'errors')}
+              for report in reports:
+                  root = ET.parse(report).getroot()
+                  for key in totals:
+                      totals[key] += int(root.attrib.get(key, 0))
+              print(f'{module}: {totals}')
+          PY

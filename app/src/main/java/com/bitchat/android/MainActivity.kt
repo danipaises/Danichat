@@ -10,8 +10,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Bluetooth
+import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -50,6 +59,11 @@ import com.bitchat.android.services.VerificationService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.danichat.welcome.DaniChatWelcomeScreen
+import com.danichat.account.data.EncryptedAccountSessionStore
+import com.danichat.account.data.SupabaseAccountRepository
+import com.danichat.account.data.SupabaseConfig
+import com.danichat.account.ui.AccountScreen
+import com.danichat.account.ui.AccountViewModel
 
 class MainActivity : OrientationAwareActivity() {
 
@@ -63,12 +77,26 @@ class MainActivity : OrientationAwareActivity() {
     private lateinit var meshService: BluetoothMeshService
     private lateinit var unifiedMeshService: MeshService
     private val mainViewModel: MainViewModel by viewModels()
+    private val accountViewModel: AccountViewModel by viewModels {
+        object : ViewModelProvider.Factory {
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                val config = SupabaseConfig.fromBuildValues(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_PUBLISHABLE_KEY)
+                val repository = config?.let {
+                    SupabaseAccountRepository(it, EncryptedAccountSessionStore(applicationContext, it),
+                        com.bitchat.android.net.OkHttpProvider::httpClient)
+                }
+                @Suppress("UNCHECKED_CAST")
+                return AccountViewModel(repository) as T
+            }
+        }
+    }
     private var pendingMeshForegroundServiceStart = false
     private val chatViewModel: ChatViewModel by viewModels { 
         object : ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 @Suppress("UNCHECKED_CAST")
-                return ChatViewModel(application, meshService, unifiedMeshService) as T
+                return ChatViewModel(application, meshService, unifiedMeshService,
+                    onPanicClearAccount = { accountViewModel.clearLocalForPanic() }) as T
             }
         }
     }
@@ -168,14 +196,32 @@ class MainActivity : OrientationAwareActivity() {
             var welcomeCompleted by rememberSaveable {
                 mutableStateOf(daniPreferences.getBoolean("welcome_completed", false))
             }
+            var accountSelected by rememberSaveable { mutableStateOf(false) }
             BitchatTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = MaterialTheme.colorScheme.background,
+                    bottomBar = {
+                        if (welcomeCompleted) NavigationBar {
+                            NavigationBarItem(
+                                selected = !accountSelected, onClick = { accountSelected = false },
+                                icon = { Icon(Icons.Default.Bluetooth, contentDescription = null) },
+                                label = { Text(stringResource(R.string.danichat_tab_bitchat)) }
+                            )
+                            NavigationBarItem(
+                                selected = accountSelected, onClick = { accountSelected = true },
+                                icon = { Icon(Icons.Default.Person, contentDescription = null) },
+                                label = { Text(stringResource(R.string.danichat_tab_account)) }
+                            )
+                        }
+                    }
                 ) { innerPadding ->
                     val screenModifier = Modifier.fillMaxSize().padding(innerPadding)
                     if (welcomeCompleted) {
-                        OnboardingFlowScreen(modifier = screenModifier)
+                        Box(screenModifier) {
+                            if (accountSelected) AccountScreen(accountViewModel)
+                            else OnboardingFlowScreen(modifier = Modifier.fillMaxSize())
+                        }
                     } else {
                         DaniChatWelcomeScreen(
                             modifier = screenModifier,
@@ -349,8 +395,11 @@ class MainActivity : OrientationAwareActivity() {
                     }
                 }
 
-                // Add the callback - this will be automatically removed when the activity is destroyed
-                onBackPressedDispatcher.addCallback(this, backCallback)
+                // Remove it when switching to the account tab as well as on Activity destruction.
+                DisposableEffect(backCallback) {
+                    onBackPressedDispatcher.addCallback(this@MainActivity, backCallback)
+                    onDispose { backCallback.remove() }
+                }
                 ChatScreen(viewModel = chatViewModel)
             }
             

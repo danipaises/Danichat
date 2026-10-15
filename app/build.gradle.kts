@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.net.URI
 
 plugins {
     alias(libs.plugins.android.application)
@@ -21,6 +22,22 @@ require(
     "DANICHAT_RELEASE_CERT_SHA256 must be a SHA-256 certificate fingerprint"
 }
 
+val supabaseUrl = providers.environmentVariable("DANICHAT_SUPABASE_URL")
+    .orElse(providers.gradleProperty("DANICHAT_SUPABASE_URL")).orElse("").get().trim()
+val supabasePublishableKey = providers.environmentVariable("DANICHAT_SUPABASE_PUBLISHABLE_KEY")
+    .orElse(providers.gradleProperty("DANICHAT_SUPABASE_PUBLISHABLE_KEY")).orElse("").get().trim()
+require((supabaseUrl.isEmpty() && supabasePublishableKey.isEmpty()) ||
+    (supabaseUrl.isNotEmpty() && supabasePublishableKey.matches(Regex("sb_publishable_[A-Za-z0-9_-]{10,}")))) {
+    "Configure URL e chave publicável Supabase juntas; nunca use service_role ou sb_secret_"
+}
+if (supabaseUrl.isNotEmpty()) {
+    val origin = URI(supabaseUrl)
+    require(origin.scheme == "https" && !origin.host.isNullOrBlank() && origin.userInfo == null &&
+        origin.query == null && origin.fragment == null && origin.path in listOf("", "/")) {
+        "DANICHAT_SUPABASE_URL deve ser uma origem HTTPS"
+    }
+}
+
 android {
     namespace = "com.bitchat.android"
     compileSdk = libs.versions.compileSdk.get().toInt()
@@ -30,8 +47,10 @@ android {
         applicationId = "com.danichat.android"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "0.1.0-dev"
+        versionCode = 2
+        versionName = "0.2.0-dev"
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+        buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"$supabasePublishableKey\"")
         buildConfigField(
             "String",
             "GITHUB_RELEASE_CERT_SHA256",
@@ -127,6 +146,8 @@ kotlin {
 
 dependencies {
     implementation(project(":feature:welcome"))
+    implementation(project(":data:account"))
+    implementation(project(":feature:account"))
 
     // Core Android dependencies
     implementation(libs.androidx.core.ktx)
