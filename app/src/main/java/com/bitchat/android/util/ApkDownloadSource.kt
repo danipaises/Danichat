@@ -43,20 +43,9 @@ data class ApkDownloadSource(
 internal object DefaultApkDownloadSources {
     const val GITHUB_ID = "github-releases"
 
-    val all = listOf(
-        ApkDownloadSource(
-            id = GITHUB_ID,
-            displayName = "GitHub Releases",
-            latestApkUrls = listOf(
-                "https://github.com/permissionlesstech/bitchat-android/releases/latest/" +
-                    "download/bitchat-android-universal.apk",
-                // Releases published before the stable asset-name rollout use
-                // this filename. Remove when supported releases all use the primary URL.
-                "https://github.com/permissionlesstech/bitchat-android/releases/latest/" +
-                    "download/app-universal-release.apk"
-            )
-        )
-    )
+    // DaniChat has no distribution endpoint yet. Never offer an upstream BitChat APK
+    // as an update to the fork. Sharing the installed APK still works offline.
+    val all: List<ApkDownloadSource> = emptyList()
 }
 
 /**

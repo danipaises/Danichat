@@ -13,7 +13,8 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "bitchat-android"
+rootProject.name = "danichat-android"
 include(":app")
 include(":wear")
+include(":feature:welcome")
 // Using published Arti AAR; local module not included

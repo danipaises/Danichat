@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
@@ -48,6 +49,7 @@ import com.bitchat.android.nostr.PoWPreferenceManager
 import com.bitchat.android.services.VerificationService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.danichat.welcome.DaniChatWelcomeScreen
 
 class MainActivity : OrientationAwareActivity() {
 
@@ -82,6 +84,14 @@ class MainActivity : OrientationAwareActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Choose Brazilian Portuguese on first launch; keep later language choices.
+        val daniPreferences = getSharedPreferences("danichat_product", MODE_PRIVATE)
+        if (!daniPreferences.getBoolean("language_initialized", false)) {
+            daniPreferences.edit().putBoolean("language_initialized", true).apply()
+            if (com.bitchat.android.ui.LanguagePreferenceManager.currentLanguageTag().isBlank()) {
+                com.bitchat.android.ui.LanguagePreferenceManager.setLanguage("pt-BR")
+            }
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             this.setRecentsScreenshotEnabled(false)
         }
@@ -155,15 +165,26 @@ class MainActivity : OrientationAwareActivity() {
         )
         
         setContent {
+            var welcomeCompleted by rememberSaveable {
+                mutableStateOf(daniPreferences.getBoolean("welcome_completed", false))
+            }
             BitchatTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     containerColor = MaterialTheme.colorScheme.background
                 ) { innerPadding ->
-                    OnboardingFlowScreen(modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                    )
+                    val screenModifier = Modifier.fillMaxSize().padding(innerPadding)
+                    if (welcomeCompleted) {
+                        OnboardingFlowScreen(modifier = screenModifier)
+                    } else {
+                        DaniChatWelcomeScreen(
+                            modifier = screenModifier,
+                            onContinue = {
+                                daniPreferences.edit().putBoolean("welcome_completed", true).apply()
+                                welcomeCompleted = true
+                            }
+                        )
+                    }
                 }
             }
         }

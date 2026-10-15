@@ -22,18 +22,18 @@ class ApkDownloadSourceTest {
     private val now = 1_700_000_000_000L
 
     @Test
-    fun `default source downloads the stable latest universal asset directly`() {
-        assertEquals(
-            "https://github.com/permissionlesstech/bitchat-android/releases/latest/" +
-                "download/bitchat-android-universal.apk",
-            DefaultApkDownloadSources.all.single().latestApkUrls.first()
-        )
-        assertEquals(
-            "https://github.com/permissionlesstech/bitchat-android/releases/latest/" +
-                "download/app-universal-release.apk",
-            DefaultApkDownloadSources.all.single().latestApkUrls[1]
-        )
+    fun `fork does not offer APKs from another product`() {
+        assertTrue(DefaultApkDownloadSources.all.isEmpty())
     }
+
+    @Test
+    fun `fork release lookup fails without network or retry until configured`() =
+        kotlinx.coroutines.test.runTest {
+            val result = DaniChatReleaseProvider.latestRelease()
+            val error = result.exceptionOrNull() as ApkDownloadException
+            assertEquals(ApkDownloadFailureReason.NoSources, error.reason)
+            assertFalse(error.retryable)
+        }
 
     @Test
     fun `transient HTTP failures are retryable but ordinary client errors are not`() {

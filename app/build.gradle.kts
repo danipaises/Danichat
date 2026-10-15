@@ -7,8 +7,8 @@ plugins {
 }
 
 val githubReleaseCertSha256 = providers
-    .environmentVariable("BITCHAT_GITHUB_RELEASE_CERT_SHA256")
-    .orElse(providers.gradleProperty("BITCHAT_GITHUB_RELEASE_CERT_SHA256"))
+    .environmentVariable("DANICHAT_RELEASE_CERT_SHA256")
+    .orElse(providers.gradleProperty("DANICHAT_RELEASE_CERT_SHA256"))
     .orElse("")
 val normalizedGithubReleaseCertSha256 = githubReleaseCertSha256.get()
     .replace(":", "")
@@ -18,7 +18,7 @@ require(
     normalizedGithubReleaseCertSha256.isEmpty() ||
         normalizedGithubReleaseCertSha256.matches(Regex("[a-f0-9]{64}"))
 ) {
-    "BITCHAT_GITHUB_RELEASE_CERT_SHA256 must be a SHA-256 certificate fingerprint"
+    "DANICHAT_RELEASE_CERT_SHA256 must be a SHA-256 certificate fingerprint"
 }
 
 android {
@@ -27,11 +27,11 @@ android {
     buildToolsVersion = libs.versions.buildTools.get()
 
     defaultConfig {
-        applicationId = "com.bitchat.droid"
+        applicationId = "com.danichat.android"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 39
-        versionName = "2.0.2"
+        versionCode = 1
+        versionName = "0.1.0-dev"
         buildConfigField(
             "String",
             "GITHUB_RELEASE_CERT_SHA256",
@@ -126,6 +126,8 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":feature:welcome"))
+
     // Core Android dependencies
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

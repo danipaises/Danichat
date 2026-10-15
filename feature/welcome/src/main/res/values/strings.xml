@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dani_name">DaniChat</string>
+    <string name="dani_title">Converse por perto.\nContinue conectado.</string>
+    <string name="dani_intro">Um mensageiro independente, sem serviços da Meta. Use sem chip e sem número de telefone.</string>
+    <string name="dani_nearby_title">Pessoas próximas, mesmo sem internet</string>
+    <string name="dani_nearby_body">Encontre outros aparelhos por Bluetooth. A rede mesh pode encaminhar mensagens entre dispositivos. Wi-Fi Aware é opcional em aparelhos compatíveis.</string>
+    <string name="dani_identity_title">Sua identidade é uma chave</string>
+    <string name="dani_identity_body">Confira a identidade do contato antes de confiar em uma conversa privada. Canais públicos podem ser vistos por outras pessoas. Relays de internet podem observar metadados das conexões.</string>
+    <string name="dani_preview_title">Primeira versão de desenvolvimento</string>
+    <string name="dani_preview_body">A comunicação usa a base aberta do BitChat. A segurança ainda não foi validada para produção. A fila atual pode perder mensagens pendentes se o processo for encerrado. Não há cadastro ou recuperação por telefone nesta versão.</string>
+    <string name="dani_continue">Abrir DaniChat</string>
+    <string name="dani_license_action">Licença e origem</string>
+    <string name="dani_attribution">DaniChat é uma versão modificada do BitChat Android, iniciada em 15/10/2026, sob a GNU GPLv3, sem garantia. Origem: github.com/permissionlesstech/bitchat-android. Consulte o código-fonte e os avisos de terceiros que acompanham esta distribuição.</string>
+    <string name="dani_close">Fechar</string>
+</resources>

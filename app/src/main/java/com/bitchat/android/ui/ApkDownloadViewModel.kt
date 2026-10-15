@@ -162,7 +162,7 @@ class ApkDownloadViewModel internal constructor(
         application = application,
         apkManager = UniversalApkManager(application),
         downloader = WorkManagerApkDownloader(application),
-        latestReleaseProvider = GitHubReleaseClient(application)
+        latestReleaseProvider = com.bitchat.android.util.DaniChatReleaseProvider
     )
 
     companion object {
