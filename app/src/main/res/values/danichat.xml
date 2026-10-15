@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="danichat_launcher_background">#F0EDFF</color>
-    <string name="danichat_tab_bitchat">Rede BitChat</string>
-    <string name="danichat_tab_account">Conta DaniChat</string>
+    <string name="danichat_tab_bitchat" translatable="false">Rede BitChat</string>
+    <string name="danichat_tab_account" translatable="false">Conta DaniChat</string>
 </resources>
