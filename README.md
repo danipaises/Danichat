@@ -6,7 +6,7 @@ Jetpack Compose e Material 3, com a pilha real de comunicação da base preserva
 **Marco atual: base BitChat preservada e início da conta online Supabase. Produto em desenvolvimento.**
 Não é uma implementação completa de todas as oito fases, nem uma versão com
 segurança validada. Os resultados de build e testes estão em
-[Verificação](docs/danichat/VERIFICACAO.md).
+[Verificação do incremento atual](docs/danichat/VERIFICACAO-0.2.0.md).
 
 - Identidade de instalação DaniChat: `com.danichat.android`, versão `0.2.0-dev`.
 - Boas-vindas próprias em módulo Gradle, tema e marca originais; idioma inicial pt-BR.
@@ -31,7 +31,8 @@ um transporte de chat. Testes em aparelhos físicos continuam pendentes.
 - [Conta Supabase, configuração e compatibilidade](docs/danichat/SUPABASE.md)
 - [Fases e critérios de aceite](docs/danichat/FASES.md)
 - [Compilação, instalação e Actions](docs/danichat/COMPILACAO.md)
-- [Resultados da verificação](docs/danichat/VERIFICACAO.md)
+- [Resultados da verificação atual](docs/danichat/VERIFICACAO-0.2.0.md)
+- [Verificação histórica da Fase 1](docs/danichat/VERIFICACAO.md)
 
 ```sh
 # JDK 21 completo, SDK 37 e Build Tools 37.0.0
